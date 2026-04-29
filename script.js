@@ -1,4 +1,4 @@
-import { saveSurvey } from "./firebase.js";
+import { saveSurvey, getBalancedCondition } from "./firebase.js";
 
 const CONDITIONS = ["A", "B", "C", "D"];
 
@@ -91,24 +91,30 @@ const surveySections = [
   }
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
-  setupParticipant();
+document.addEventListener("DOMContentLoaded", async () => {
+  await setupParticipant();
   bindEvents();
   updateProgress();
 });
 
-function setupParticipant() {
+async function setupParticipant() {
   const params = new URLSearchParams(window.location.search);
 
   participantId =
     params.get("pid") ||
-    localStorage.getItem("participantId") ||
-    "u_" + crypto.randomUUID();
+    localStorage.getItem("participantId");
 
   condition =
     params.get("condition") ||
-    localStorage.getItem("condition") ||
-    CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)];
+    localStorage.getItem("condition");
+
+  if (!participantId) {
+    participantId = "u_" + crypto.randomUUID();
+  }
+
+  if (!condition) {
+    condition = await getBalancedCondition();
+  }
 
   localStorage.setItem("participantId", participantId);
   localStorage.setItem("condition", condition);
@@ -120,7 +126,11 @@ function setupParticipant() {
     window.location.pathname +
     "?" +
     params.toString();
-  if (!window.location.search.includes("pid") || !window.location.search.includes("condition")) {
+
+  if (
+    !window.location.search.includes("pid") ||
+    !window.location.search.includes("condition")
+  ) {
     window.location.replace(newUrl);
     return;
   }
