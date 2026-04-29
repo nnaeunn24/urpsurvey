@@ -30,46 +30,24 @@ export async function saveSurvey(data) {
   });
 }
 
-export async function assignBalancedCondition(participantId) {
-  const participantRef = doc(db, "participants", participantId);
+export async function saveSurvey(data) {
   const counterRef = doc(db, "meta", "conditionCounts");
 
-  return await runTransaction(db, async transaction => {
-    const participantSnap = await transaction.get(participantRef);
+  await runTransaction(db, async transaction => {
+    const snap = await transaction.get(counterRef);
 
-    if (participantSnap.exists()) {
-      return participantSnap.data().condition;
+    let counts = { A: 0, B: 0, C: 0, D: 0 };
+
+    if (snap.exists()) {
+      counts = { ...counts, ...snap.data() };
     }
 
-    const counterSnap = await transaction.get(counterRef);
-
-    let counts = {
-      A: 0,
-      B: 0,
-      C: 0,
-      D: 0
-    };
-
-    if (counterSnap.exists()) {
-      counts = {
-        ...counts,
-        ...counterSnap.data()
-      };
-    }
-
-    const minCount = Math.min(counts.A, counts.B, counts.C, counts.D);
-    const candidates = ["A", "B", "C", "D"].filter(c => counts[c] === minCount);
-    const selected = candidates[Math.floor(Math.random() * candidates.length)];
-
-    counts[selected] += 1;
+    counts[data.condition] += 1;
 
     transaction.set(counterRef, counts);
-    transaction.set(participantRef, {
-      participantId,
-      condition: selected,
-      createdAt: serverTimestamp()
+    transaction.set(doc(collection(db, "responses")), {
+      ...data,
+      submittedAt: serverTimestamp()
     });
-
-    return selected;
   });
 }

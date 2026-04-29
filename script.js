@@ -126,9 +126,6 @@ async function setupParticipant() {
 
   const newUrl = `${window.location.pathname}?${params.toString()}`;
   window.history.replaceState({}, "", newUrl);
-
-  console.log("참여자 ID:", participantId);
-  console.log("조건:", condition);
 }
 
 function showStep(index) {
