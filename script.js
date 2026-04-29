@@ -10,7 +10,6 @@ const pages = [
 ];
 
 let currentPageIndex = 0;
-let condition = null;
 let checkAnswer = null;
 let currentQuestionIndex = 0;
 let answers = {};
@@ -18,7 +17,6 @@ let answers = {};
 const progressBar = document.getElementById("progressBar");
 const consentCheck = document.getElementById("consentCheck");
 const startBtn = document.getElementById("startBtn");
-const CONDITIONS = ["A", "B", "C", "D"];
 
 function showPage(pageId) {
   pages.forEach(id => {
@@ -35,9 +33,44 @@ function updateProgress() {
   progressBar.style.width = progress + "%";
 }
 
+const CONDITIONS = ["A", "B", "C", "D"];
+
+let participantId = null;
+let condition = null;
+
+function setupParticipant() {
+  const params = new URLSearchParams(window.location.search);
+
+  participantId = params.get("pid") || localStorage.getItem("participantId");
+  condition = params.get("condition") || localStorage.getItem("condition");
+
+  if (!participantId) {
+    participantId = "u_" + crypto.randomUUID();
+  }
+
+  if (!condition) {
+    condition = CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)];
+  }
+
+  localStorage.setItem("participantId", participantId);
+  localStorage.setItem("condition", condition);
+
+  params.set("pid", participantId);
+  params.set("condition", condition);
+
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState({}, "", newUrl);
+
+  console.log("참여자 ID:", participantId);
+  console.log("배정 조건:", condition);
+}
+
+setupParticipant();
+
 /* 동의 체크 → 시작 버튼 활성화 */
-consentCheck.addEventListener("change", () => {
-  startBtn.disabled = !consentCheck.checked;
+document.getElementById("companyNextBtn").addEventListener("click", () => {
+  document.getElementById("conditionDisplay").textContent = condition;
+  showPage("page-video");
 });
 
 startBtn.addEventListener("click", () => {
@@ -48,54 +81,6 @@ startBtn.addEventListener("click", () => {
 document.getElementById("companyNextBtn").addEventListener("click", () => {
   showPage("page-video");
 });
-
-/* 랜덤 배정 */
-function setupParticipant() {
-  const params = new URLSearchParams(window.location.search);
-
-  // 1. URL에서 먼저 가져오기
-  participantId = params.get("pid");
-  condition = params.get("condition");
-
-  // 2. URL에 없으면 localStorage에서 가져오기
-  if (!participantId) {
-    participantId = localStorage.getItem("participantId");
-  }
-
-  if (!condition) {
-    condition = localStorage.getItem("condition");
-  }
-
-  // 3. 둘 다 없으면 새로 생성
-  if (!participantId) {
-    participantId = "u_" + crypto.randomUUID();
-  }
-
-  if (!condition) {
-    condition = CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)];
-  }
-
-  // 4. localStorage에 저장
-  localStorage.setItem("participantId", participantId);
-  localStorage.setItem("condition", condition);
-
-  // 5. URL에도 저장
-  params.set("pid", participantId);
-  params.set("condition", condition);
-
-  const newUrl = `${window.location.pathname}?${params.toString()}`;
-  window.history.replaceState({}, "", newUrl);
-
-  console.log("참여자 ID:", participantId);
-  console.log("배정 조건:", condition);
-
-  const conditionDisplay = document.getElementById("conditionDisplay");
-  
-  if (conditionDisplay) {
-    conditionDisplay.textContent = condition;}
-}
-
-setupParticipant();
 
 /* 영상 다음 */
 document.getElementById("videoNextBtn").addEventListener("click", () => {
