@@ -75,9 +75,9 @@ const surveySections = [
   },
   {
     title: "행동 의도",
-    guide: "1점: 전혀 그렇지 않다 / 5점: 매우 그렇다",
+    guide: "1점: 전혀 그렇지 않다 / 7점: 매우 그렇다",
     type: "likert",
-    scale: 5,
+    scale: 7,
     questions: [
       { id: "behavior_1", text: "앞으로 이 브랜드에 대해 긍정적으로 생각할 것 같다." },
       { id: "behavior_2", text: "이 브랜드의 콘텐츠를 다시 볼 의향이 있다." },
@@ -154,7 +154,21 @@ function updateProgress() {
 function renderSurveySection(sectionIndex) {
   const section = surveySections[sectionIndex];
 
+  if (!section) {
+    console.error("해당 surveySections가 없습니다:", sectionIndex);
+    return;
+  }
+
+  if (!sectionCount || !sectionTitle || !sectionGuide || !questionsBox || !surveyNextBtn) {
+    console.error("설문 영역 HTML id가 맞지 않습니다.");
+    return;
+  }
+
   sectionCount.textContent = `${sectionIndex + 1} / ${surveySections.length}`;
+  sectionTitle.textContent = section.title;
+  sectionGuide.textContent = section.guide;
+  questionsBox.innerHTML = "";
+  
   sectionTitle.textContent = section.title;
   sectionGuide.textContent = section.guide;
   questionsBox.innerHTML = "";
@@ -286,7 +300,16 @@ document.getElementById("videoBackBtn").addEventListener("click", () => {
 });
 
 document.getElementById("videoNextBtn").addEventListener("click", () => {
-  showStep(3);
+  renderSurveySection(0);
+
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  document.getElementById("page-survey").classList.add("active");
+
+  currentStep = 3;
+  updateProgress();
 });
 
 surveyBackBtn.addEventListener("click", () => {
