@@ -22,9 +22,9 @@
     localStorage.setItem("participantId", pid);
     localStorage.setItem("condition", condition);
 
-    window.location.replace(
-      `./survey.html?pid=${pid}&condition=${condition}`
-    );
+    const targetUrl = "./survey.html?pid=" + encodeURIComponent(pid) + "&condition=" + encodeURIComponent(condition);
+
+    window.location.replace(targetUrl);
   </script>
 </head>
 
