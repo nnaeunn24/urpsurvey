@@ -1,6 +1,5 @@
 import { saveSurvey } from "./firebase.js";
 
-// 페이지 순서
 const pages = [
   "page-consent",
   "page-company",
@@ -10,26 +9,30 @@ const pages = [
   "page-complete"
 ];
 
-let currentPageIndex = 0;
-
-// 참여자 / 조건
 const CONDITIONS = ["A", "B", "C", "D"];
+
 let participantId = null;
 let condition = null;
-
-// 상태값
 let checkAnswer = null;
 let currentQuestionIndex = 0;
 let answers = {};
 
-// DOM
 const progressBar = document.getElementById("progressBar");
 const consentCheck = document.getElementById("consentCheck");
 const startBtn = document.getElementById("startBtn");
 
-// ----------------------
-// 참가자 & 조건 설정 (핵심)
-// ----------------------
+const conditionDisplay = document.getElementById("conditionDisplay");
+
+const checkQuestionText = document.getElementById("checkQuestionText");
+const checkOptionsBox = document.getElementById("checkOptionsBox");
+const checkNextBtn = document.getElementById("checkNextBtn");
+
+const questionCount = document.getElementById("questionCount");
+const questionText = document.getElementById("questionText");
+const scaleGuide = document.getElementById("scaleGuide");
+const optionsBox = document.getElementById("optionsBox");
+const surveyNextBtn = document.getElementById("surveyNextBtn");
+
 function setupParticipant() {
   const params = new URLSearchParams(window.location.search);
 
@@ -57,11 +60,6 @@ function setupParticipant() {
   console.log("조건:", condition);
 }
 
-setupParticipant();
-
-// ----------------------
-// 페이지 이동
-// ----------------------
 function showPage(pageId) {
   pages.forEach(id => {
     document.getElementById(id).classList.remove("active");
@@ -69,41 +67,38 @@ function showPage(pageId) {
 
   document.getElementById(pageId).classList.add("active");
 
-  // 진행바
   const progress = ((pages.indexOf(pageId) + 1) / pages.length) * 100;
   progressBar.style.width = progress + "%";
 }
 
-// ----------------------
-// 동의 체크 → 시작 버튼 활성화
-// ----------------------
-consentCheck.addEventListener("change", () => {
-  startBtn.disabled = !consentCheck.checked;
-});
+const checkQuestion = {
+  text: "방금 소개된 기업의 이름은 무엇이었습니까?",
+  options: ["A그룹", "B그룹", "C그룹", "D그룹"]
+};
 
-// ----------------------
-// 버튼 이벤트
-// ----------------------
-startBtn.addEventListener("click", () => {
-  showPage("page-company");
-});
+function renderCheckQuestion() {
+  checkQuestionText.textContent = checkQuestion.text;
+  checkOptionsBox.innerHTML = "";
+  checkNextBtn.disabled = true;
 
-document.getElementById("companyNextBtn").addEventListener("click", () => {
-  document.getElementById("conditionDisplay").textContent = condition;
-  showPage("page-video");
-});
+  checkQuestion.options.forEach(option => {
+    const label = document.createElement("label");
+    label.className = "option-label";
 
-document.getElementById("videoNextBtn").addEventListener("click", () => {
-  showPage("page-check");
-});
+    label.innerHTML = `
+      <input type="radio" name="checkQuestion" value="${option}">
+      <span>${option}</span>
+    `;
 
-document.getElementById("checkNextBtn").addEventListener("click", () => {
-  showPage("page-survey");
-});
+    label.querySelector("input").addEventListener("change", e => {
+      checkAnswer = e.target.value;
+      checkNextBtn.disabled = false;
+    });
 
-// ----------------------
-// 설문 질문
-// ----------------------
+    checkOptionsBox.appendChild(label);
+  });
+}
+
 const questions = [
   {
     id: "authenticity_1",
@@ -121,61 +116,81 @@ const questions = [
   }
 ];
 
-// ----------------------
-// 설문 렌더링
-// ----------------------
-const surveyContainer = document.getElementById("surveyContainer");
+function renderSurveyQuestion() {
+  const q = questions[currentQuestionIndex];
 
-function renderQuestions() {
-  surveyContainer.innerHTML = "";
+  questionCount.textContent = `${currentQuestionIndex + 1} / ${questions.length}`;
+  questionText.textContent = q.text;
+  scaleGuide.textContent = `${q.leftLabel} — ${q.rightLabel}`;
+  optionsBox.innerHTML = "";
+  surveyNextBtn.disabled = true;
 
-  questions.forEach(q => {
-    const div = document.createElement("div");
-    div.className = "question";
+  for (let i = 1; i <= q.scale; i++) {
+    const label = document.createElement("label");
+    label.className = "likert-option";
 
-    let options = "";
-    for (let i = 1; i <= q.scale; i++) {
-      options += `
-        <label>
-          <input type="radio" name="${q.id}" value="${i}">
-          ${i}
-        </label>
-      `;
-    }
-
-    div.innerHTML = `
-      <p>${q.text}</p>
-      <div>${q.leftLabel}</div>
-      <div>${options}</div>
-      <div>${q.rightLabel}</div>
+    label.innerHTML = `
+      <input type="radio" name="${q.id}" value="${i}">
+      <span>${i}</span>
     `;
 
-    surveyContainer.appendChild(div);
-  });
+    label.querySelector("input").addEventListener("change", e => {
+      answers[q.id] = Number(e.target.value);
+      surveyNextBtn.disabled = false;
+    });
+
+    optionsBox.appendChild(label);
+  }
+
+  surveyNextBtn.textContent =
+    currentQuestionIndex === questions.length - 1 ? "제출하기" : "다음";
 }
 
-renderQuestions();
-
-// ----------------------
-// 제출
-// ----------------------
-document.getElementById("submitBtn").addEventListener("click", async () => {
-  questions.forEach(q => {
-    const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-    if (selected) {
-      answers[q.id] = Number(selected.value);
-    }
-  });
-
+async function submitSurvey() {
   const result = {
     participantId,
     condition,
     consent: consentCheck.checked,
+    checkAnswer,
     answers,
     submittedAt: new Date().toISOString()
   };
 
   await saveSurvey(result);
-
   showPage("page-complete");
+}
+
+setupParticipant();
+
+consentCheck.addEventListener("change", () => {
+  startBtn.disabled = !consentCheck.checked;
+});
+
+startBtn.addEventListener("click", () => {
+  showPage("page-company");
+});
+
+document.getElementById("companyNextBtn").addEventListener("click", () => {
+  conditionDisplay.textContent = condition;
+  showPage("page-video");
+});
+
+document.getElementById("videoNextBtn").addEventListener("click", () => {
+  renderCheckQuestion();
+  showPage("page-check");
+});
+
+checkNextBtn.addEventListener("click", () => {
+  currentQuestionIndex = 0;
+  renderSurveyQuestion();
+  showPage("page-survey");
+});
+
+surveyNextBtn.addEventListener("click", async () => {
+  if (currentQuestionIndex < questions.length - 1) {
+    currentQuestionIndex++;
+    renderSurveyQuestion();
+  } else {
+    await submitSurvey();
+  }
 });
