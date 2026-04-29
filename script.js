@@ -277,55 +277,50 @@ async function submitSurvey() {
   showStep(steps.length - 1);
 }
 
-await setupParticipant();
-updateProgress();
+async function init() {
+  await setupParticipant();
+  updateProgress();
 
-consentCheck.addEventListener("change", () => {
-  startBtn.disabled = !consentCheck.checked;
-});
-
-startBtn.addEventListener("click", () => {
-  showStep(1);
-});
-
-document.getElementById("companyBackBtn").addEventListener("click", () => {
-  showStep(0);
-});
-
-document.getElementById("companyNextBtn").addEventListener("click", () => {
-  conditionDisplay.textContent = condition;
-  showStep(2);
-});
-
-document.getElementById("videoBackBtn").addEventListener("click", () => {
-  showStep(1);
-});
-
-document.getElementById("videoNextBtn").addEventListener("click", () => {
-  renderSurveySection(0);
-
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
+  consentCheck.addEventListener("change", () => {
+    startBtn.disabled = !consentCheck.checked;
   });
 
-  document.getElementById("page-survey").classList.add("active");
+  startBtn.addEventListener("click", () => {
+    showStep(1);
+  });
 
-  currentStep = 3;
-  updateProgress();
-});
+  document.getElementById("companyBackBtn").addEventListener("click", () => {
+    showStep(0);
+  });
 
-surveyBackBtn.addEventListener("click", () => {
-  if (currentStep > 0) {
-    showStep(currentStep - 1);
-  }
-});
+  document.getElementById("companyNextBtn").addEventListener("click", () => {
+    conditionDisplay.textContent = condition;
+    showStep(2);
+  });
 
-surveyNextBtn.addEventListener("click", async () => {
-  const currentSurveyIndex = currentStep - 3;
+  document.getElementById("videoBackBtn").addEventListener("click", () => {
+    showStep(1);
+  });
 
-  if (currentSurveyIndex < surveySections.length - 1) {
-    showStep(currentStep + 1);
-  } else {
-    await submitSurvey();
-  }
-});
+  document.getElementById("videoNextBtn").addEventListener("click", () => {
+    showStep(3);
+  });
+
+  surveyBackBtn.addEventListener("click", () => {
+    if (currentStep > 0) {
+      showStep(currentStep - 1);
+    }
+  });
+
+  surveyNextBtn.addEventListener("click", async () => {
+    const currentSurveyIndex = currentStep - 3;
+
+    if (currentSurveyIndex < surveySections.length - 1) {
+      showStep(currentStep + 1);
+    } else {
+      await submitSurvey();
+    }
+  });
+}
+
+init();
