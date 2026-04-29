@@ -2,34 +2,28 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>설문조사 이동 중</title>
+  <title>설문 이동</title>
 
-  <script type="module">
-    import { assignBalancedCondition } from "./firebase.js";
-
+  <script>
     const params = new URLSearchParams(window.location.search);
 
-    let participantId =
-      params.get("pid") ||
-      localStorage.getItem("participantId");
+    let pid = params.get("pid") || localStorage.getItem("participantId");
+    let condition = params.get("condition") || localStorage.getItem("condition");
 
-    let condition =
-      params.get("condition") ||
-      localStorage.getItem("condition");
-
-    if (!participantId) {
-      participantId = "u_" + crypto.randomUUID();
+    if (!pid) {
+      pid = "u_" + crypto.randomUUID();
     }
 
     if (!condition) {
-      condition = await assignBalancedCondition(participantId);
+      const CONDITIONS = ["A", "B", "C", "D"];
+      condition = CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)];
     }
 
-    localStorage.setItem("participantId", participantId);
+    localStorage.setItem("participantId", pid);
     localStorage.setItem("condition", condition);
 
     window.location.replace(
-      `./survey.html?pid=${participantId}&condition=${condition}`
+      `./survey.html?pid=${pid}&condition=${condition}`
     );
   </script>
 </head>
