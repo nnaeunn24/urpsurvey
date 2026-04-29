@@ -3,32 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <title>설문 이동</title>
-
-  <script>
-    const params = new URLSearchParams(window.location.search);
-
-    let pid = params.get("pid") || localStorage.getItem("participantId");
-    let condition = params.get("condition") || localStorage.getItem("condition");
-
-    if (!pid) {
-      pid = "u_" + crypto.randomUUID();
-    }
-
-    if (!condition) {
-      const CONDITIONS = ["A", "B", "C", "D"];
-      condition = CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)];
-    }
-
-    localStorage.setItem("participantId", pid);
-    localStorage.setItem("condition", condition);
-
-    const targetUrl = "./survey.html?pid=" + encodeURIComponent(pid) + "&condition=" + encodeURIComponent(condition);
-
-    window.location.replace(targetUrl);
-  </script>
 </head>
 
 <body>
   <p>설문 페이지로 이동 중입니다...</p>
+
+  <script>
+    window.location.href = "./survey.html";
+  </script>
 </body>
 </html>
