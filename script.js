@@ -1,5 +1,6 @@
 import { saveSurvey } from "./firebase.js";
 
+// 페이지 순서
 const pages = [
   "page-consent",
   "page-company",
@@ -10,34 +11,25 @@ const pages = [
 ];
 
 let currentPageIndex = 0;
+
+// 참여자 / 조건
+const CONDITIONS = ["A", "B", "C", "D"];
+let participantId = null;
+let condition = null;
+
+// 상태값
 let checkAnswer = null;
 let currentQuestionIndex = 0;
 let answers = {};
 
+// DOM
 const progressBar = document.getElementById("progressBar");
 const consentCheck = document.getElementById("consentCheck");
 const startBtn = document.getElementById("startBtn");
 
-function showPage(pageId) {
-  pages.forEach(id => {
-    document.getElementById(id).classList.remove("active");
-  });
-
-  document.getElementById(pageId).classList.add("active");
-  currentPageIndex = pages.indexOf(pageId);
-  updateProgress();
-}
-
-function updateProgress() {
-  const progress = (currentPageIndex / (pages.length - 1)) * 100;
-  progressBar.style.width = progress + "%";
-}
-
-const CONDITIONS = ["A", "B", "C", "D"];
-
-let participantId = null;
-let condition = null;
-
+// ----------------------
+// 참가자 & 조건 설정 (핵심)
+// ----------------------
 function setupParticipant() {
   const params = new URLSearchParams(window.location.search);
 
@@ -62,80 +54,56 @@ function setupParticipant() {
   window.history.replaceState({}, "", newUrl);
 
   console.log("참여자 ID:", participantId);
-  console.log("배정 조건:", condition);
+  console.log("조건:", condition);
 }
 
 setupParticipant();
 
-/* 동의 체크 → 시작 버튼 활성화 */
+// ----------------------
+// 페이지 이동
+// ----------------------
+function showPage(pageId) {
+  pages.forEach(id => {
+    document.getElementById(id).classList.remove("active");
+  });
+
+  document.getElementById(pageId).classList.add("active");
+
+  // 진행바
+  const progress = ((pages.indexOf(pageId) + 1) / pages.length) * 100;
+  progressBar.style.width = progress + "%";
+}
+
+// ----------------------
+// 동의 체크 → 시작 버튼 활성화
+// ----------------------
+consentCheck.addEventListener("change", () => {
+  startBtn.disabled = !consentCheck.checked;
+});
+
+// ----------------------
+// 버튼 이벤트
+// ----------------------
+startBtn.addEventListener("click", () => {
+  showPage("page-company");
+});
+
 document.getElementById("companyNextBtn").addEventListener("click", () => {
   document.getElementById("conditionDisplay").textContent = condition;
   showPage("page-video");
 });
 
-startBtn.addEventListener("click", () => {
-  showPage("page-company");
-});
-
-/* 가상기업 설명 */
-document.getElementById("companyNextBtn").addEventListener("click", () => {
-  showPage("page-video");
-});
-
-/* 영상 다음 */
 document.getElementById("videoNextBtn").addEventListener("click", () => {
-  renderCheckQuestion();
   showPage("page-check");
 });
 
-/* 내용 확인 질문 */
-const checkQuestion = {
-  id: "check_slogan",
-  text: "A그룹의 슬로건은 무엇입니까?",
-  options: [
-    "기술로 연결하고, 사람을 향합니다",
-    "사람을 넘어 기술로 향합니다",
-    "미래를 만들고, 기업을 연결합니다",
-    "새로운 일상을 디자인합니다"
-  ],
-  answer: "기술로 연결하고, 사람을 향합니다"
-};
-
-function renderCheckQuestion() {
-  const textBox = document.getElementById("checkQuestionText");
-  const optionsBox = document.getElementById("checkOptionsBox");
-  const nextBtn = document.getElementById("checkNextBtn");
-
-  textBox.textContent = checkQuestion.text;
-  optionsBox.innerHTML = "";
-  nextBtn.disabled = true;
-
-  checkQuestion.options.forEach(option => {
-    const button = document.createElement("button");
-    button.className = "option-btn";
-    button.textContent = option;
-
-    button.addEventListener("click", () => {
-      checkAnswer = option;
-
-      document.querySelectorAll("#checkOptionsBox .option-btn").forEach(btn => {
-        btn.classList.remove("selected");
-      });
-
-      button.classList.add("selected");
-      nextBtn.disabled = false;
-    });
-
-    optionsBox.appendChild(button);
-  });
-}
-
 document.getElementById("checkNextBtn").addEventListener("click", () => {
-  renderSurveyQuestion();
   showPage("page-survey");
 });
 
-/* 본 설문: 5점 + 7점 섞기 */
+// ----------------------
+// 설문 질문
+// ----------------------
 const questions = [
   {
     id: "authenticity_1",
@@ -153,91 +121,61 @@ const questions = [
   }
 ];
 
-function renderSurveyQuestion() {
-  const question = questions[currentQuestionIndex];
+// ----------------------
+// 설문 렌더링
+// ----------------------
+const surveyContainer = document.getElementById("surveyContainer");
 
-  document.getElementById("questionCount").textContent =
-    `${currentQuestionIndex + 1} / ${questions.length}`;
+function renderQuestions() {
+  surveyContainer.innerHTML = "";
 
-  document.getElementById("questionText").textContent = question.text;
+  questions.forEach(q => {
+    const div = document.createElement("div");
+    div.className = "question";
 
-  document.getElementById("scaleGuide").textContent =
-    `1 = ${question.leftLabel}, ${question.scale} = ${question.rightLabel}`;
+    let options = "";
+    for (let i = 1; i <= q.scale; i++) {
+      options += `
+        <label>
+          <input type="radio" name="${q.id}" value="${i}">
+          ${i}
+        </label>
+      `;
+    }
 
-  const optionsBox = document.getElementById("optionsBox");
-  const nextBtn = document.getElementById("surveyNextBtn");
-
-  optionsBox.innerHTML = "";
-  nextBtn.disabled = true;
-
-  for (let i = 1; i <= question.scale; i++) {
-    const label = document.createElement("label");
-    label.className = "likert-option";
-
-    const isLeft = i === 1;
-    const isRight = i === question.scale;
-
-    label.innerHTML = `
-      <input type="radio" name="${question.id}" value="${i}">
-      <div class="likert-circle">${i}</div>
-      <div class="likert-label">
-        ${isLeft ? question.leftLabel : isRight ? question.rightLabel : ""}
-      </div>
+    div.innerHTML = `
+      <p>${q.text}</p>
+      <div>${q.leftLabel}</div>
+      <div>${options}</div>
+      <div>${q.rightLabel}</div>
     `;
 
-    const input = label.querySelector("input");
-
-    input.addEventListener("change", () => {
-      answers[question.id] = Number(input.value);
-      nextBtn.disabled = false;
-    });
-
-    optionsBox.appendChild(label);
-  }
-
-  nextBtn.textContent =
-    currentQuestionIndex === questions.length - 1 ? "제출하기" : "다음";
+    surveyContainer.appendChild(div);
+  });
 }
 
-document.getElementById("surveyNextBtn").addEventListener("click", () => {
-  if (currentQuestionIndex < questions.length - 1) {
-    currentQuestionIndex++;
-    renderSurveyQuestion();
-  } else {
-    submitSurvey();
-  }
-});
+renderQuestions();
 
-/* 제출 */
-function submitSurvey() {
+// ----------------------
+// 제출
+// ----------------------
+document.getElementById("submitBtn").addEventListener("click", async () => {
+  questions.forEach(q => {
+    const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+    if (selected) {
+      answers[q.id] = Number(selected.value);
+    }
+  });
+
   const result = {
-    participantId: getParticipantId(),
-    condition: condition,
+    participantId,
+    condition,
     consent: consentCheck.checked,
-    attentionCheck: {
-      questionId: checkQuestion.id,
-      answer: checkAnswer,
-      isCorrect: checkAnswer === checkQuestion.answer
-    },
-    answers: answers,
+    answers,
     submittedAt: new Date().toISOString()
   };
 
-  console.log("저장될 데이터:", result);
-  saveSurvey(result);
+  await saveSurvey(result);
 
   showPage("page-complete");
-}
-
-function getParticipantId() {
-  let id = localStorage.getItem("participantId");
-
-  if (!id) {
-    id = "u_" + crypto.randomUUID();
-    localStorage.setItem("participantId", id);
-  }
-
-  return id;
-}
-
-updateProgress();
+});
