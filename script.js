@@ -120,8 +120,10 @@ function setupParticipant() {
     window.location.pathname +
     "?" +
     params.toString();
-
-  window.history.replaceState({}, "", newUrl);
+  if (!window.location.search.includes("pid") || !window.location.search.includes("condition")) {
+    window.location.replace(newUrl);
+    return;
+  }
 
   console.log("participantId:", participantId);
   console.log("condition:", condition);
