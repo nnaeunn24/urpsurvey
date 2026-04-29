@@ -1,5 +1,3 @@
-import { saveSurvey, assignBalancedCondition } from "./firebase.js";
-
 const CONDITIONS = ["A", "B", "C", "D"];
 
 let participantId = null;
@@ -75,9 +73,9 @@ const surveySections = [
   },
   {
     title: "행동 의도",
-    guide: "1점: 전혀 그렇지 않다 / 7점: 매우 그렇다",
+    guide: "1점: 전혀 그렇지 않다 / 5점: 매우 그렇다",
     type: "likert",
-    scale: 7,
+    scale: 5,
     questions: [
       { id: "behavior_1", text: "앞으로 이 브랜드에 대해 긍정적으로 생각할 것 같다." },
       { id: "behavior_2", text: "이 브랜드의 콘텐츠를 다시 볼 의향이 있다." },
@@ -87,35 +85,24 @@ const surveySections = [
   }
 ];
 
-const progressBar = document.getElementById("progressBar");
-const consentCheck = document.getElementById("consentCheck");
-const startBtn = document.getElementById("startBtn");
-const conditionDisplay = document.getElementById("conditionDisplay");
+window.addEventListener("DOMContentLoaded", () => {
+  setupParticipant();
+  bindEvents();
+  updateProgress();
+});
 
-const sectionCount = document.getElementById("sectionCount");
-const sectionTitle = document.getElementById("sectionTitle");
-const sectionGuide = document.getElementById("sectionGuide");
-const questionsBox = document.getElementById("questionsBox");
-const surveyBackBtn = document.getElementById("surveyBackBtn");
-const surveyNextBtn = document.getElementById("surveyNextBtn");
-
-async function setupParticipant() {
+function setupParticipant() {
   const params = new URLSearchParams(window.location.search);
 
-  participantId =
-    params.get("pid") ||
-    localStorage.getItem("participantId");
-
-  condition =
-    params.get("condition") ||
-    localStorage.getItem("condition");
+  participantId = params.get("pid") || localStorage.getItem("participantId");
+  condition = params.get("condition") || localStorage.getItem("condition");
 
   if (!participantId) {
     participantId = "u_" + crypto.randomUUID();
   }
 
   if (!condition) {
-    condition = await assignBalancedCondition(participantId);
+    condition = CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)];
   }
 
   localStorage.setItem("participantId", participantId);
@@ -124,8 +111,52 @@ async function setupParticipant() {
   params.set("pid", participantId);
   params.set("condition", condition);
 
-  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  const newUrl = "./survey.html?pid=" + encodeURIComponent(participantId) + "&condition=" + encodeURIComponent(condition);
   window.history.replaceState({}, "", newUrl);
+}
+
+function bindEvents() {
+  const consentCheck = document.getElementById("consentCheck");
+  const startBtn = document.getElementById("startBtn");
+
+  consentCheck.addEventListener("change", () => {
+    startBtn.disabled = !consentCheck.checked;
+  });
+
+  startBtn.addEventListener("click", () => {
+    showStep(1);
+  });
+
+  document.getElementById("companyBackBtn").addEventListener("click", () => {
+    showStep(0);
+  });
+
+  document.getElementById("companyNextBtn").addEventListener("click", () => {
+    document.getElementById("conditionDisplay").textContent = condition;
+    showStep(2);
+  });
+
+  document.getElementById("videoBackBtn").addEventListener("click", () => {
+    showStep(1);
+  });
+
+  document.getElementById("videoNextBtn").addEventListener("click", () => {
+    showStep(3);
+  });
+
+  document.getElementById("surveyBackBtn").addEventListener("click", () => {
+    showStep(currentStep - 1);
+  });
+
+  document.getElementById("surveyNextBtn").addEventListener("click", async () => {
+    const currentSurveyIndex = currentStep - 3;
+
+    if (currentSurveyIndex < surveySections.length - 1) {
+      showStep(currentStep + 1);
+    } else {
+      await submitSurvey();
+    }
+  });
 }
 
 function showStep(index) {
@@ -149,41 +180,29 @@ function showStep(index) {
 }
 
 function updateProgress() {
+  const progressBar = document.getElementById("progressBar");
   const progress = ((currentStep + 1) / steps.length) * 100;
-  progressBar.style.width = `${progress}%`;
+  progressBar.style.width = progress + "%";
 }
 
 function renderSurveySection(sectionIndex) {
   const section = surveySections[sectionIndex];
 
-  if (!section) {
-    console.error("해당 surveySections가 없습니다:", sectionIndex);
-    return;
-  }
+  document.getElementById("sectionCount").textContent = `${sectionIndex + 1} / ${surveySections.length}`;
+  document.getElementById("sectionTitle").textContent = section.title;
+  document.getElementById("sectionGuide").textContent = section.guide;
 
-  if (!sectionCount || !sectionTitle || !sectionGuide || !questionsBox || !surveyNextBtn) {
-    console.error("설문 영역 HTML id가 맞지 않습니다.");
-    return;
-  }
-
-  sectionCount.textContent = `${sectionIndex + 1} / ${surveySections.length}`;
-  sectionTitle.textContent = section.title;
-  sectionGuide.textContent = section.guide;
+  const questionsBox = document.getElementById("questionsBox");
   questionsBox.innerHTML = "";
 
-  sectionTitle.textContent = section.title;
-  sectionGuide.textContent = section.guide;
-  questionsBox.innerHTML = "";
+  section.questions.forEach((q, index) => {
+    const block = document.createElement("div");
+    block.className = "question-block";
 
-  section.questions.forEach((q, qIndex) => {
-    const questionDiv = document.createElement("div");
-    questionDiv.className = "question-block";
-
-    const questionText = document.createElement("p");
-    questionText.className = "question-text";
-    questionText.textContent = `${qIndex + 1}. ${q.text}`;
-
-    questionDiv.appendChild(questionText);
+    const title = document.createElement("p");
+    title.className = "question-text";
+    title.textContent = `${index + 1}. ${q.text}`;
+    block.appendChild(title);
 
     if (section.type === "choice") {
       const optionsDiv = document.createElement("div");
@@ -212,7 +231,7 @@ function renderSurveySection(sectionIndex) {
         optionsDiv.appendChild(label);
       });
 
-      questionDiv.appendChild(optionsDiv);
+      block.appendChild(optionsDiv);
     }
 
     if (section.type === "likert") {
@@ -242,14 +261,14 @@ function renderSurveySection(sectionIndex) {
         likertDiv.appendChild(label);
       }
 
-      questionDiv.appendChild(likertDiv);
+      block.appendChild(likertDiv);
     }
 
-    questionsBox.appendChild(questionDiv);
+    questionsBox.appendChild(block);
   });
 
-  surveyNextBtn.textContent =
-    sectionIndex === surveySections.length - 1 ? "제출하기" : "다음";
+  const surveyNextBtn = document.getElementById("surveyNextBtn");
+  surveyNextBtn.textContent = sectionIndex === surveySections.length - 1 ? "제출하기" : "다음";
 
   updateSurveyNextButton(sectionIndex);
 }
@@ -257,70 +276,25 @@ function renderSurveySection(sectionIndex) {
 function updateSurveyNextButton(sectionIndex) {
   const section = surveySections[sectionIndex];
 
-  const isComplete = section.questions.every(q => {
-    return answers[q.id] !== undefined && answers[q.id] !== null && answers[q.id] !== "";
-  });
+  const isComplete = section.questions.every(q => answers[q.id] !== undefined);
 
-  surveyNextBtn.disabled = !isComplete;
+  document.getElementById("surveyNextBtn").disabled = !isComplete;
 }
 
 async function submitSurvey() {
   const result = {
     participantId,
     condition,
-    consent: consentCheck.checked,
     answers,
     submittedAt: new Date().toISOString()
   };
 
-  await saveSurvey(result);
+  try {
+    const firebase = await import("./firebase.js");
+    await firebase.saveSurvey(result);
+  } catch (error) {
+    console.error("Firebase 저장 실패:", error);
+  }
+
   showStep(steps.length - 1);
 }
-
-async function init() {
-  await setupParticipant();
-  updateProgress();
-
-  consentCheck.addEventListener("change", () => {
-    startBtn.disabled = !consentCheck.checked;
-  });
-
-  startBtn.addEventListener("click", () => {
-    showStep(1);
-  });
-
-  document.getElementById("companyBackBtn").addEventListener("click", () => {
-    showStep(0);
-  });
-
-  document.getElementById("companyNextBtn").addEventListener("click", () => {
-    conditionDisplay.textContent = condition;
-    showStep(2);
-  });
-
-  document.getElementById("videoBackBtn").addEventListener("click", () => {
-    showStep(1);
-  });
-
-  document.getElementById("videoNextBtn").addEventListener("click", () => {
-    showStep(3);
-  });
-
-  surveyBackBtn.addEventListener("click", () => {
-    if (currentStep > 0) {
-      showStep(currentStep - 1);
-    }
-  });
-
-  surveyNextBtn.addEventListener("click", async () => {
-    const currentSurveyIndex = currentStep - 3;
-
-    if (currentSurveyIndex < surveySections.length - 1) {
-      showStep(currentStep + 1);
-    } else {
-      await submitSurvey();
-    }
-  });
-}
-
-init();
