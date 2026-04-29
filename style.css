@@ -20,7 +20,7 @@ body {
 .progress {
   width: 100%;
   height: 8px;
-  background: #e1e5ea;
+  background: #e5e7eb;
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: 24px;
@@ -30,7 +30,7 @@ body {
   width: 0%;
   height: 100%;
   background: #2563eb;
-  transition: width 0.3s ease;
+  transition: width 0.25s ease;
 }
 
 .page {
@@ -42,17 +42,18 @@ body {
 }
 
 .card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 20px;
   padding: 28px 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-.card.center {
+.center {
   text-align: center;
 }
 
-h1, h2, h3 {
+h1,
+h2 {
   margin-top: 0;
   line-height: 1.35;
 }
@@ -67,17 +68,14 @@ p {
 }
 
 .consent-box {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
   margin: 24px 0;
   padding: 16px;
   border: 1px solid #d9dee7;
   border-radius: 12px;
   background: #f9fafb;
-}
-
-.consent-box label {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
   cursor: pointer;
 }
 
@@ -86,14 +84,14 @@ p {
   padding: 36px 20px;
   border: 2px dashed #b8c2d6;
   border-radius: 18px;
-  text-align: center;
   background: #f8fafc;
+  text-align: center;
 }
 
 .video-box h1 {
   font-size: 64px;
-  margin: 8px 0;
   color: #2563eb;
+  margin: 8px 0;
 }
 
 .button-row {
@@ -115,7 +113,7 @@ p {
 
 .primary-btn {
   background: #2563eb;
-  color: white;
+  color: #fff;
 }
 
 .primary-btn:disabled {
@@ -128,16 +126,16 @@ p {
   color: #333;
 }
 
-.question-count {
+.section-count {
   font-size: 14px;
   color: #64748b;
   font-weight: 700;
 }
 
-.scale-guide {
-  margin-bottom: 24px;
+.section-guide {
   color: #475569;
   font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .question-block {
@@ -166,13 +164,13 @@ p {
   padding: 14px;
   border: 1px solid #d9dee7;
   border-radius: 12px;
-  cursor: pointer;
   background: #fff;
+  cursor: pointer;
 }
 
-.choice-option:has(input:checked) {
-  border-color: #2563eb;
-  background: #eff6ff;
+.choice-option input {
+  width: 18px;
+  height: 18px;
 }
 
 .likert-row {
@@ -182,8 +180,8 @@ p {
 }
 
 .likert-option {
-  text-align: center;
   cursor: pointer;
+  text-align: center;
 }
 
 .likert-option input {
@@ -200,9 +198,9 @@ p {
 }
 
 .likert-option input:checked + span {
-  border-color: #2563eb;
   background: #2563eb;
   color: white;
+  border-color: #2563eb;
 }
 
 @media (max-width: 480px) {
@@ -221,4 +219,12 @@ p {
   .video-box h1 {
     font-size: 52px;
   }
+}
+
+#surveyVideo {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 16px;
+  border-radius: 14px;
+  background: #000;
 }

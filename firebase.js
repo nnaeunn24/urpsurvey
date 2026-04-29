@@ -4,8 +4,6 @@ import {
   collection,
   addDoc,
   doc,
-  getDoc,
-  setDoc,
   runTransaction,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -24,28 +22,35 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 export async function saveSurvey(data) {
-  await addDoc(collection(db, "responses"), {
-    ...data,
-    submittedAt: serverTimestamp()
-  });
-}
-
-export async function saveSurvey(data) {
   const counterRef = doc(db, "meta", "conditionCounts");
+  const responseRef = doc(collection(db, "responses"));
 
   await runTransaction(db, async transaction => {
-    const snap = await transaction.get(counterRef);
+    const counterSnap = await transaction.get(counterRef);
 
-    let counts = { A: 0, B: 0, C: 0, D: 0 };
+    let counts = {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0
+    };
 
-    if (snap.exists()) {
-      counts = { ...counts, ...snap.data() };
+    if (counterSnap.exists()) {
+      counts = {
+        ...counts,
+        ...counterSnap.data()
+      };
+    }
+
+    if (counts[data.condition] === undefined) {
+      counts[data.condition] = 0;
     }
 
     counts[data.condition] += 1;
 
     transaction.set(counterRef, counts);
-    transaction.set(doc(collection(db, "responses")), {
+
+    transaction.set(responseRef, {
       ...data,
       submittedAt: serverTimestamp()
     });
