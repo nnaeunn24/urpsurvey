@@ -42,7 +42,10 @@
           <li><strong>슬로건</strong> 기술로 연결하고, 사람을 향합니다</li>
         </ul>
 
-        <button class="primary-btn" id="companyNextBtn">다음</button>
+        <div class="button-row">
+          <button class="secondary-btn" id="companyBackBtn">이전</button>
+          <button class="primary-btn" id="companyNextBtn">다음</button>
+        </div>
       </div>
     </section>
 
@@ -52,31 +55,30 @@
         <p>아래 영상을 시청한 뒤 다음 단계로 이동해 주세요.</p>
 
         <div class="video-box">
-            <p>현재 배정된 조건</p>
-            <h1 id="conditionDisplay">-</h1>
-            <small>나중에 조건별 영상이 들어갑니다.</small>
+          <p>현재 배정된 조건</p>
+          <h1 id="conditionDisplay">-</h1>
+          <small>나중에 조건별 영상이 들어갑니다.</small>
         </div>
 
-        <button class="primary-btn" id="videoNextBtn">다음</button>
-      </div>
-    </section>
-
-    <section class="page" id="page-check">
-      <div class="card">
-        <h2>내용 확인 질문</h2>
-        <h3 id="checkQuestionText"></h3>
-        <div id="checkOptionsBox" class="options"></div>
-        <button class="primary-btn" id="checkNextBtn" disabled>다음</button>
+        <div class="button-row">
+          <button class="secondary-btn" id="videoBackBtn">이전</button>
+          <button class="primary-btn" id="videoNextBtn">다음</button>
+        </div>
       </div>
     </section>
 
     <section class="page" id="page-survey">
       <div class="card">
-        <p class="question-count" id="questionCount"></p>
-        <h2 id="questionText"></h2>
-        <p class="scale-guide" id="scaleGuide"></p>
-        <div id="optionsBox" class="likert-row"></div>
-        <button class="primary-btn" id="surveyNextBtn" disabled>다음</button>
+        <p class="question-count" id="sectionCount"></p>
+        <h2 id="sectionTitle"></h2>
+        <p class="scale-guide" id="sectionGuide"></p>
+
+        <div id="questionsBox"></div>
+
+        <div class="button-row">
+          <button class="secondary-btn" id="surveyBackBtn">이전</button>
+          <button class="primary-btn" id="surveyNextBtn">다음</button>
+        </div>
       </div>
     </section>
 
@@ -88,6 +90,6 @@
     </section>
   </main>
 
-<script type="module" src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
