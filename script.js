@@ -1,4 +1,4 @@
-import { saveSurvey } from "./firebase.js";
+import { saveSurvey, assignBalancedCondition } from "./firebase.js";
 
 const CONDITIONS = ["A", "B", "C", "D"];
 
@@ -99,18 +99,23 @@ const questionsBox = document.getElementById("questionsBox");
 const surveyBackBtn = document.getElementById("surveyBackBtn");
 const surveyNextBtn = document.getElementById("surveyNextBtn");
 
-function setupParticipant() {
+async function setupParticipant() {
   const params = new URLSearchParams(window.location.search);
 
-  participantId = params.get("pid") || localStorage.getItem("participantId");
-  condition = params.get("condition") || localStorage.getItem("condition");
+  participantId =
+    params.get("pid") ||
+    localStorage.getItem("participantId");
+
+  condition =
+    params.get("condition") ||
+    localStorage.getItem("condition");
 
   if (!participantId) {
     participantId = "u_" + crypto.randomUUID();
   }
 
   if (!condition) {
-    condition = CONDITIONS[Math.floor(Math.random() * CONDITIONS.length)];
+    condition = await assignBalancedCondition(participantId);
   }
 
   localStorage.setItem("participantId", participantId);
@@ -168,7 +173,7 @@ function renderSurveySection(sectionIndex) {
   sectionTitle.textContent = section.title;
   sectionGuide.textContent = section.guide;
   questionsBox.innerHTML = "";
-  
+
   sectionTitle.textContent = section.title;
   sectionGuide.textContent = section.guide;
   questionsBox.innerHTML = "";
@@ -275,7 +280,7 @@ async function submitSurvey() {
   showStep(steps.length - 1);
 }
 
-setupParticipant();
+await setupParticipant();
 updateProgress();
 
 consentCheck.addEventListener("change", () => {
