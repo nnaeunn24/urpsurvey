@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>URP 설문조사</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -16,12 +17,13 @@
     <section class="page active" id="page-consent">
       <div class="card">
         <h1>연구 참여 안내</h1>
-        <p>본 설문은 콘텐츠 시청 후 이용자의 인식과 반응을 알아보기 위한 연구입니다.</p>
-        <p>응답은 연구 목적으로만 사용되며 익명으로 처리됩니다.</p>
+        <p>안녕하세요. 저희는 성균관대학교 융합연구학점제(URP) '웹진동무'팀입니다.</p>
+        <p>본 설문지는 브랜드 광고를 보고 난 후 진행하는 설문조사입니다. <br class="pc-br">문항은 총 39개이며, 영상 시청 시간을 제외한 소요 시간은 약 5분입니다. <br class="pc-br">조사는 익명으로 진행되며, 융합연구학점제(URP)의 자료로 쓰일 예정입니다.</p>
+        <p>진솔하게 답변해 주시면 감사하겠습니다.<br></p>
 
         <label class="consent-box">
           <input type="checkbox" id="consentCheck" />
-          <span>개인정보 수집 및 연구 참여에 동의합니다.</span>
+          <span>본 연구의 목적과 내용을 이해하였으며, <br class="mobile-br">연구 참여에 동의합니다.</span>
         </label>
 
         <button class="primary-btn" id="startBtn" disabled>시작하기</button>
@@ -31,14 +33,33 @@
     <section class="page" id="page-company">
       <div class="card">
         <h2>A그룹 소개</h2>
-        <p>A그룹은 기술을 통해 사람들의 일상과 사회를 더 나은 방향으로 연결하는 대기업입니다.</p>
+        <p class="intro-text">다음은 곧 시청하실 브랜딩 광고의 기업 'A그룹'에 대한 설명입니다. <br class="pc-br">모두 읽으신 후, 다음 페이지에 있는 영상을 시청해 주시기 바랍니다.<br></p>
 
-        <ul class="info-list">
-          <li><strong>매출액</strong> 약 145조 원</li>
-          <li><strong>영업이익</strong> 약 11조 원</li>
-          <li><strong>계열사</strong> 6개 분야, 35개 계열사</li>
-          <li><strong>슬로건</strong> 기술로 연결하고, 사람을 향합니다</li>
-        </ul>
+        <div class="info-section">
+          <div class="info-grid">
+            <div class="info-item"><strong>규모</strong><span>대기업</span></div>
+            <div class="info-item"><strong>창립일</strong><span>1978.10.06</span></div>
+            <div class="info-item"><strong>매출액</strong><span>약 145조 원</span></div>
+            <div class="info-item"><strong>영업이익</strong><span>약 11조 원</span></div>
+            <div class="info-item"><strong>시가총액</strong><span>약 210조</span></div>
+            <div class="info-item"><strong>진출 국가</strong><span>42개</span></div>
+          </div>
+          <div class="brand-section">
+            <div class="brand-card">
+              <div class="brand-title">슬로건</div>
+              <div class="brand-text">
+                기술로 연결하고, 사람을 향합니다
+              </div>
+            </div>
+
+            <div class="brand-card">
+              <div class="brand-title">기업 철학</div>
+              <div class="brand-text">
+                우리는 기술과 사업의 중심에 항상 사람을 둔다. <br class="pc-br">기업의 성장은 사람들의 삶을 더 나아지게 할 때 의미가 있다고 믿는다.
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="button-row">
           <button class="secondary-btn" id="companyBackBtn">이전</button>
@@ -50,21 +71,21 @@
     <section class="page" id="page-video">
       <div class="card">
         <h2>영상 시청</h2>
-        <p>아래 영상을 시청한 뒤 다음 단계로 이동해 주세요.</p>
+        <p class="intro-text">아래 영상은 'A그룹'의 브랜딩 광고입니다.<br>시청 후, 다음 페이지의 설문에 응답해 주시기 바랍니다.</p>
 
         <div class="video-box">
-            <p>현재 배정된 조건</p>
-            <h1 id="conditionDisplay">-</h1>
-            
-            <video id="surveyVideo" controls playsinline>
-                <source id="videoSource" src="" type="video/mp4" />
-                브라우저가 영상을 지원하지 않습니다.
-            </video>
+          <p>현재 배정된 조건</p>
+          <h1 id="conditionDisplay">-</h1>
+
+          <video id="surveyVideo" controls playsinline>
+            <source id="videoSource" src="" type="video/mp4" />
+            브라우저가 영상을 지원하지 않습니다.
+          </video>
         </div>
 
         <div class="button-row">
-          <button class="secondary-btn" id="videoBackBtn">이전</button>
-          <button class="primary-btn" id="videoNextBtn">다음</button>
+          <button class="secondary-btn" id="videoBackBtn" type="button">이전</button>
+          <button class="primary-btn" id="videoNextBtn" type="button">다음</button>
         </div>
       </div>
     </section>
