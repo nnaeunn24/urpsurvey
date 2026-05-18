@@ -440,6 +440,21 @@ p {
   line-height: 1.5;
 }
 
+#page-complete h2 {
+  text-align: center;
+  letter-spacing: -0.04em;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+#page-complete p {
+  color: #64748b;
+  text-align: center;
+  letter-spacing: -0.04em;
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+
 @media (max-width: 480px) {
   .app {
     padding: 16px 12px;

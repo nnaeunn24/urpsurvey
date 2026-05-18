@@ -130,7 +130,7 @@ const surveySections = [
   questions: [
     {
       id: "age",
-      text: "귀하의 나이는 어떻게 되십니까?",
+      text: "귀하의 나이는 어떻게 되십니까? (만 나이 기준)",
       options: ["10대", "20대", "30대", "40대", "50대 이상"]
     },
     {
@@ -147,7 +147,7 @@ const surveySections = [
   questions: [
     { id: "ai_attitude_1", text: "나는 이미지나 영상 제작에 AI 도구를 사용해 본 경험이 있다." },
     { id: "ai_attitude_2", text: "AI가 생성한 이미지나 영상도 충분히 높은 품질을 가질 수 있다고 생각한다." },
-    { id: "ai_attitude_3", text: "나는 이미지나 영상 제작에 AI 도구를 사용해 본 경험이 있다." },
+    { id: "ai_attitude_3", text: "AI가 만든 광고 콘텐츠는 인간이 만든 광고와 비슷한 수준의 완성도를 가질 수 없다고 생각한다." },
     { id: "ai_attitude_4", text: "기업이 광고 제작에 AI를 활용하는 것은 효율적인 방법이라고 생각한다." },
     { id: "ai_attitude_5", text: "AI가 만든 광고 콘텐츠에 대해 거부감을 느낄 때가 있다." },
     { id: "ai_attitude_6", text: "기업이 AI를 활용해 광고를 제작하더라도 브랜드에 대한 신뢰는 크게 변하지 않을 것이라고 생각한다." },
