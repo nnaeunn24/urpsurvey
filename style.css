@@ -506,12 +506,51 @@ p {
   }
 }
 
+.survey-video {
+  width: 100%;
+  margin: 32px 0 40px;
+  border-radius: 18px;
+  background: #000;
+  display: block;
+}
+
 .pc-br {
   display: block;
 }
 
 .mobile-br {
   display: none;
+}
+
+.phone-field {
+  margin-top: 64px;
+  letter-spacing: -0.04em;
+  text-align: left;
+}
+
+.phone-field label {
+  display: block;
+  letter-spacing: -0.04em;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.phone-field input {
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid #d7dce8;
+  border-radius: 14px;
+  font-family: "Pretendard", sans-serif;
+  font-size: 16px;
+  letter-spacing: -0.04em;
+  box-sizing: border-box;
+}
+
+.phone-field small {
+  display: block;
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
 @media (max-width: 480px) {

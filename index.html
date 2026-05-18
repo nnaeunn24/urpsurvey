@@ -20,7 +20,7 @@
         <p>안녕하세요. 저희는 성균관대학교 융합연구학점제(URP) '웹진동무'팀입니다.</p>
         <p>본 설문지는 브랜드 광고를 보고 난 후 진행하는 설문조사입니다. <br class="pc-br">문항은 총 39개이며, 영상 시청 시간을 제외한 소요 시간은 약 5분입니다. <br class="pc-br">조사는 익명으로 진행되며, 융합연구학점제(URP)의 자료로 쓰일 예정입니다.</p>
         <p>진솔하게 답변해 주시면 감사하겠습니다.<br></p>
-
+        
         <label class="consent-box">
           <input type="checkbox" id="consentCheck" />
           <span>본 연구의 목적과 내용을 이해하였으며, <br class="mobile-br">연구 참여에 동의합니다.</span>
@@ -71,17 +71,15 @@
     <section class="page" id="page-video">
       <div class="card">
         <h2>영상 시청</h2>
-        <p class="intro-text">아래 영상은 'A그룹'의 브랜딩 광고입니다.<br>시청 후, 다음 페이지의 설문에 응답해 주시기 바랍니다.</p>
+        <p class="intro-text">
+          아래 영상은 'A그룹'의 브랜딩 광고입니다.<br>
+          끝까지 시청 후, 다음 페이지의 설문에 응답해 주시기 바랍니다.
+        </p>
 
-        <div class="video-box">
-          <p>현재 배정된 조건</p>
-          <h1 id="conditionDisplay">-</h1>
-
-          <video id="surveyVideo" controls playsinline>
-            <source id="videoSource" src="" type="video/mp4" />
-            브라우저가 영상을 지원하지 않습니다.
-          </video>
-        </div>
+        <video id="surveyVideo" class="survey-video" controls playsinline>
+          <source id="videoSource" src="" type="video/mp4" />
+          브라우저가 영상을 지원하지 않습니다.
+        </video>
 
         <div class="button-row">
           <button class="secondary-btn" id="videoBackBtn" type="button">이전</button>

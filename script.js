@@ -3,10 +3,10 @@ import { saveSurvey, getBalancedCondition } from "./firebase.js";
 const CONDITIONS = ["A", "B", "C", "D"];
 
 const VIDEO_URLS = {
-  A: "videos/video-a.mp4",
-  B: "videos/video-b.mp4",
-  C: "videos/video-c.mp4",
-  D: "videos/video-d.mp4"
+  A: "videos/high-before.mp4",
+  B: "videos/high-after.mp4",
+  C: "videos/low-before.mp4",
+  D: "videos/low-after.mp4"
 };
 
 let participantId = "";
@@ -123,7 +123,7 @@ const surveySections = [
   },
   
   {
-  title: "",
+  title: "기본 정보",
   guide: "기본 정보를 입력해 주세요.",
   type: "choice",
   noBack: false, // ⭐ 이전 버튼 숨기기용
@@ -141,7 +141,7 @@ const surveySections = [
   ]
 },
 {
-  title: "",
+  title: "AI 인식",
   guide: "다음 문항에 대해 해당되는 응답을 선택해 주세요.",
   type: "binary",
   questions: [
@@ -228,16 +228,20 @@ function bindEvents() {
   });
 
   document.getElementById("companyNextBtn").addEventListener("click", () => {
-  document.getElementById("conditionDisplay").textContent = condition;
 
-  const video = document.getElementById("surveyVideo");
-  const source = document.getElementById("videoSource");
+    const video = document.getElementById("surveyVideo");
+    const source = document.getElementById("videoSource");
+    const videoNextBtn = document.getElementById("videoNextBtn");
 
-  source.src = VIDEO_URLS[condition];
-  video.load();
-
-  showPage(2);
-});
+    videoNextBtn.disabled = true;
+    video.onended = () => {
+      videoNextBtn.disabled = false;
+    };
+    
+    source.src = VIDEO_URLS[condition];
+    video.load();
+    showPage(2);
+  });
 
   document.getElementById("videoBackBtn").addEventListener("click", () => {
     showPage(1);
@@ -317,9 +321,30 @@ function renderSurveySection() {
     message.className = "final-message";
     message.innerHTML = `
       <h3>설문에 참여해 주셔서 감사합니다.</h3>
-      <p>모든 응답이 완료되었습니다.<br>귀하의 참여 덕에 신뢰도 있는 연구를 진행할 수 있습니다.<br>아래 제출하기 버튼을 눌러 설문을 종료해 주세요.</p>
-    `;
+      <p>
+        모든 응답이 완료되었습니다.<br>
+        귀하의 참여 덕에 신뢰도 있는 연구를 진행할 수 있습니다.<br>
+      </p>
+
+      <div class="phone-field">
+        <label for="phoneInput">추첨을 통한 상품 제공을 원하시는 경우, 전화번호를 입력해 주세요.</label>
+        <input 
+          id="phoneInput" 
+          type="tel" 
+          placeholder="예: 010-1234-5678"
+          autocomplete="tel"
+        />
+        <small>입력하신 전화번호는 연구 종료 이후 폐기되며, 입력하지 않아도 제출할 수 있습니다.</small>
+      </div>
+  `   ;
     questionsBox.appendChild(message);
+
+    const phoneInput = document.getElementById("phoneInput");
+    phoneInput.value = answers.phone || "";
+
+    phoneInput.addEventListener("input", () => {
+      answers.phone = phoneInput.value.trim();
+    });
   }
 
   section.questions.forEach((question, index) => {
@@ -485,13 +510,18 @@ function updateSurveyNextButton() {
 }
 
 async function submitSurvey() {
+  const contentCheckPassed =
+    answers.check_1 === "기업 브랜딩" &&
+    answers.check_2 === "경쾌한 느낌";
+
   const result = {
     participantId,
     condition,
     consent: true,
     answers,
+    contentCheckPassed,
     submittedAtClient: new Date().toISOString()
-  };
+};
 
   try {
     await saveSurvey(result);
